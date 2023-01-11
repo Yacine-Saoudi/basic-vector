@@ -3,44 +3,28 @@
 #include <iostream>
 #include <string>
 
-// using namespace vector;
-// using namespace std;
-// vector(const vector&); //copy constructor
-// vector& operator=(vector&&); //copy assignment
-
-// vector(vector&&); //move constructor
-// vector& operator=(vector&&); //move assignment
-
 template<class T>
-vector<T>::vector(const vector& v){ //copy constructor
-        size = v.size;
-        arr = v.arr;
-}
-
-template<class T>
-vector<T>& vector<T>::operator=(const vector& v){ //copy assignment
-        size = v.size;
-        arr = v.arr;
-}
-
-template<class T>
-vector<T>::vector(vector&& v){
-
-}
-
-template<class T>
-vector<T>& vector<T>::operator=(vector&& v){
-
-}
-
-// parameterized constructor
-template<class T>
-vector<T>::vector(T t, int i){
-    size = i;
-    for (int j=0; j < size; j++){
-        arr[j] = t;
-    }
+vector<T>::vector(const vector& other) : capacity(other.capacity), size(other.size) { //copy constructor
+    arr = new T[other.capacity];
+    memcpy(arr, other.arr, sizeof(T[other.capacity]));
     
+}
+
+template<class T>
+vector<T>& vector<T>::operator=(vector other){ //copy assignment
+    swap(*this, other);
+    return *this;
+}
+
+template<class T>
+vector<T>::vector(vector&& other): vector() { //move constructor
+    swap(*this, other);
+}
+
+template<class T>
+vector<T>& vector<T>::operator=(vector&& other) { //move assignment
+    swap(*this, other);
+    return *this;
 }
 
 // default constructor
@@ -52,10 +36,22 @@ vector<T>::vector(){
 }
 
 template<class T>
+void swap(vector<T>& first, vector<T>& second){
+    using std::swap;
+
+    swap(first.size, second.size);
+    swap(first.capacity, second.capacity);
+    swap(first.arr, second.arr);
+}
+
+// destructor
+template<class T>
 vector<T>::~vector(){
     delete [] arr;
 }
 
+// subscript access operator 
+// TODO: add error handling
 template<class T>
 T vector<T>::operator[](int index){
     return arr[index];
@@ -77,37 +73,45 @@ void vector<T>::print(){
     std::cout << "]" << std::endl;
 }
 
-template<class T>
-void vector<T>::resize(){
-
-}
 
 template<class T>
-void vector<T>::reserve(int newcapacity){
-    // set the new capacity to reserve
+void vector<T>::reserve(int newcap){
+    this->capacity = newcap;
+    T* temp = new T[newcap];
+    for(int i = 0; i < size; i++){
+        temp[i] = arr[i];
+    }
+
+    delete[] arr;
+    arr = temp;
 }
 
-// push
+// push new element into vector array
 template<class T>
 void vector<T>::push(T element){
     if(size == capacity){
-        this->resize();
+        this->reserve(2*size);
     }
-    else{
-        arr[size++] = element;
-    }
+    arr[size++] = element;
 }
 
 // swap element
-template<class T>
-void vector<T>::swap(T element, int index){
-    if(index < 0 || index > size) throw;
-    arr[index] = element;
-}
+// template<class T>
+// void vector<T>::swap(vector<T>& first, vector<T>& second){
+//     using std::swap;
+
+//     swap(first.size, second.size);
+//     swap(first.capacity, second.capacity);
+//     swap(first.arr, second.arr);
+// }
 
 // pop
 template<class T>
 T vector<T>::pop(){
+    if(size <= 0) throw;
+    if(size/3 > capacity){
+        reserve(size/2);
+    }
     T ret = arr[size];
     arr[size--] = 0;
     return ret;
@@ -115,58 +119,28 @@ T vector<T>::pop(){
 
 // get length of vector
 template<class T>
-size_t vector<T>::length(){
+int vector<T>::length(){
     return size;
-}
-
-// max size
-template<class T>
-size_t vector<T>::max_size(){
-    return 256;
 }
 
 // capacity
 template<class T>
-size_t vector<T>::capacity(){
-    return 256-size;
+int vector<T>::max_capacity(){
+    return this->capacity;
 }
 
-// get array
-template<class T>
-const std::array<T, 256> vector<T>::getarr(){
-    return this->arr;
-}
 
 int main(){
     vector<char> v;
-    v.print();
-    v.push('y');
-    v.push('a');
-    v.push('c');
-    v.push('i');
-    v.push('n');
-    std::cout << v.length() << std::endl;
-    v.print();
-    v.pop();
-    v.swap('p', 1);
-    char out = v.pop();
-    v.print();
-    std::cout << out << std::endl;
-
-    vector<int> b(10, 10);
-    b.print();
-
-    vector<int> c = b;
-    c.print();
-
-    vector<char> d(v);
-    
-    d.pop();
-    d.pop();
+    v.max_capacity();
+    v.push('1');
+    v.push('2');
+    v.push('3');
+    v.push('4');
+    vector<char> d = v;
     d.print();
-    v.print();
-    using namespace std;
-    cout << d[1] << endl;
-
+    v.pop();
+    d.print();
     return 0;
+
 }
