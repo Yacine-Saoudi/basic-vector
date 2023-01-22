@@ -1,5 +1,5 @@
 // vector.h
-#include <array>
+#include <mutex>
 
 // using namespace std;
 
@@ -11,6 +11,8 @@ class vector {
     int capacity;
     // array the vector uses
     T* arr;
+
+    std::mutex mutex;
 
     public:
 
@@ -25,13 +27,15 @@ class vector {
     ~vector();
 
     T operator[](int);
-    void reserve(int);
     void print();
     void push(T);
     friend void swap(vector<T>&, vector<T>&);
-    T pop();
+    void pop();
 
     int length();
     int max_capacity();
+
+    private: 
+    void reserve(int);
 };
 
